@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ael-krai <ael-krai@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mnahli <mnahli@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/11 10:03:05 by ael-krai          #+#    #+#             */
-/*   Updated: 2025/05/11 11:31:07 by ael-krai         ###   ########.fr       */
+/*   Updated: 2025/05/11 11:56:38 by mnahli           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void	signal_handler(int signal, siginfo_t *d, void *context)
 	if (signal == SIGINT)
 	{
 		printf("\n");
-		// rl_replace_line("", 0);
+		rl_replace_line("", 0);
 		rl_on_new_line();
 		rl_redisplay();
 	}

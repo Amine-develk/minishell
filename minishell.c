@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ael-krai <ael-krai@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mnahli <mnahli@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 10:34:20 by ael-krai          #+#    #+#             */
-/*   Updated: 2025/05/11 11:30:17 by ael-krai         ###   ########.fr       */
+/*   Updated: 2025/05/11 11:57:54 by mnahli           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,8 @@ void	print_cmd(t_cmd *cmd)
 
 }
 
+// void	
+
 int	main()
 {
 	struct sigaction	action;
@@ -123,7 +125,8 @@ int	main()
 		if (check_parsing(line))
 			printf("Syntax Error\n");
 		create_cmd_list(&cmd, line);
-		print_cmd(cmd);
+		execute_cmd(&cmd);
+		// print_cmd(cmd);
 	}
 	return (clear_history(), free_cmd(&cmd), free(line), 0);
 }
