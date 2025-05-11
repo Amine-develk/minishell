@@ -1,25 +1,36 @@
-SRCS = minishell.c ft_split.c ft_substr.c ft_strcmp.c utils.c
+SRCS = minishell.c utils.c
 
 OBJS = ${SRCS:.c=.o}
+
+LIBFT_DIR = libft
+LIBFT = $(LIBFT_DIR)/libft.a
 
 NAME = minishell
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
-LDFLAGS = -lreadline
+LDFLAGS = -lreadline -lncurses
+
+RM = rm -f
+
+.PHONY: all clean fclean re
 
 all: $(NAME)
 
+$(LIBFT):
+	@$(MAKE) -C $(LIBFT_DIR)
 
-$(NAME): $(OBJS)
-	@$(CC) $(CFLAGS) $(OBJS) -o $(NAME) $(LDFLAGS)
+$(NAME): $(OBJS) $(LIBFT)
+	@$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -o $(NAME) $(LDFLAGS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	@rm -f $(OBJS) $(OBJSB)
+	@$(RM) $(OBJS)
+	@$(MAKE) -C $(LIBFT_DIR) clean
 
 fclean: clean
-	@rm -f $(NAME) $(BONUS)
+	@$(RM) $(NAME)
+	@$(MAKE) -C $(LIBFT_DIR) fclean
 
 re: fclean all

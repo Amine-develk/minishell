@@ -1,4 +1,32 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ael-krai <ael-krai@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/05/11 10:03:05 by ael-krai          #+#    #+#             */
+/*   Updated: 2025/05/11 11:31:07 by ael-krai         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
+
+void	signal_handler(int signal, siginfo_t *d, void *context)
+{
+	(void)context;
+	(void)d;
+
+	if (signal == SIGINT)
+	{
+		printf("\n");
+		// rl_replace_line("", 0);
+		rl_on_new_line();
+		rl_redisplay();
+	}
+	else if (signal == EOF || signal == SIGQUIT)
+		exit(0) ;
+}
 
 int	is_operator(char c)
 {
@@ -21,15 +49,49 @@ void	free_cmd(t_cmd **cmd)
 	}
 }
 
+char	*ft_trim(char *str)
+{
+	char	*s;
+	int		start;
+	int		end;
+	int		len;
+	int		i;
+
+	if (!str)
+		return (NULL);
+	start = 0;
+	while (str[start] && str[start] == ' ')
+		start++;
+	end = ft_strlen(str);
+	while (end > start && str[end - 1] == ' ')
+		end--;
+	len = end - start;
+	if (!(s = malloc(len + 1)))
+		return (free(str), NULL);
+	i = 0;
+	while (i < len)
+	{
+		s[i] = str[start + i];
+		i++;
+	}
+	return (free(str), s[len] = '\0', s);
+}
+
+
 int	check_parsing(char *str)
 {
 	int	i;
+	int	j;
 	int	d;
 	int	s;
 
 	i = 0;
 	d = 0;
 	s = 0;
+	if (str[0] == '\'' || str[0] == '\"')
+		j = 1;
+	else
+		j = 0;
 	while (str[i])
 	{
 		if (str[i] == '\"')
@@ -38,8 +100,8 @@ int	check_parsing(char *str)
 			s++;
 		i++;
 	}
-	if (str[i - 1] == '|' || str[i - 1] == '>' || str[i - 1] == '<'
-		|| str[0] == '|' || d % 2 != 0 || s % 2 != 0)
+	if (d % 2 != 0 || s % 2 != 0 || str[j] == '|' ||
+		str[i - j - 1] == '|' || str[i - j - 1] == '>' || str[i - j - 1] == '<')
 		return (1);
 	return (0);
 }
