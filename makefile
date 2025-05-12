@@ -1,4 +1,4 @@
-NAME = minishell
+NAME = minishell  
 CC = cc
 RM = rm -f
 CFLAGS = -Wall -Wextra -Werror
@@ -7,7 +7,10 @@ LIBFT_DIR = includes/libft
 LIBFT = $(LIBFT_DIR)/libft.a
 
 
-SRCS = minishell.c utils.c
+SRCS = src/main/minishell.c \
+	src/parsing/cmd_utils.c \
+	src/parsing/utils.c \
+	src/execution/exec.c
 OBJS = ${SRCS:.c=.o}
 
 
@@ -20,7 +23,7 @@ $(LIBFT):
 $(NAME): $(OBJS) $(LIBFT)
 	@$(CC) $(CFLAGS) $(OBJS) $(LIBFT) $(LDFLAGS) -o $(NAME)
 
-%.o: %.c minishell.h
+%.o: %.c includes/minishell.h
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 clean:

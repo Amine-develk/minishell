@@ -3,19 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mnahli <mnahli@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ael-krai <ael-krai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 10:34:20 by ael-krai          #+#    #+#             */
-/*   Updated: 2025/05/12 12:00:47 by mnahli           ###   ########.fr       */
+/*   Updated: 2025/05/12 13:55:00 by ael-krai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "../../includes/minishell.h"
 
-void	ft_tokanize(t_cmd **cmd_list, int t, char *line, int i, int len)
+void	ft_tokanize(t_cmd **cmd_list, t_cmd *cmd, int t, char *line, int i, int len)
 {
-	t_cmd *cmd;
-
 	if (!(cmd = create_cmd(ft_trim(ft_substr(line, i, len)))))
 		return ;
 	if (t == 0)
@@ -42,16 +40,8 @@ void	ft_tokanize(t_cmd **cmd_list, int t, char *line, int i, int len)
 	push_cmd(cmd_list, cmd);
 }
 
-
-void	create_cmd_list(t_cmd **cmd, char *line)
+void	create_cmd_list(t_cmd **cmd, t_cmd	*command, char *line, int quote, int i, int j)
 {
-	int		i;
-	int		j;
-	int		quote;
-	
-	i = 0;
-	j = 0;
-	quote = 0;
 	while (line[i])
 	{
 		if (line[i] == '\"' || line[i] == '\'')
@@ -59,15 +49,15 @@ void	create_cmd_list(t_cmd **cmd, char *line)
 		if (is_operator(line[i]) && !quote)
 		{
 			if (i > j)
-				ft_tokanize(cmd, 0, line, j, i - j);
+				ft_tokanize(cmd, command, 0, line, j, i - j);
 			if (is_operator(line[i + 1]))
 			{
-				ft_tokanize(cmd, 2, line, i, 2);
+				ft_tokanize(cmd, command, 2, line, i, 2);
 				i += 2;
 			}
 			else
 			{
-				ft_tokanize(cmd, 1, line, i, 1);
+				ft_tokanize(cmd, command, 1, line, i, 1);
 				i++;
 			}
 			j = i;
@@ -76,7 +66,7 @@ void	create_cmd_list(t_cmd **cmd, char *line)
 			i++;
 	}
 	if (i > j)
-		ft_tokanize(cmd, 0, line, j, i - j);
+		ft_tokanize(cmd, command, 0, line, j, i - j);
 }
 
 void	print_cmd(t_cmd *cmd)
@@ -101,16 +91,19 @@ void	print_cmd(t_cmd *cmd)
 
 }
 
-int	main()
+int	main(int ac, char **av, char **envp)
 {
-	struct sigaction	action;
 	t_cmd				*cmd;
+	t_cmd				*command;
+	char				**env;
 	char				*line;
 
-	action.sa_sigaction = signal_handler;
-	sigaction(SIGINT, &action, NULL);
-	sigaction(EOF, &action, NULL);
-	sigaction(SIGQUIT, &action, NULL);
+	(void)ac;
+	(void)av;
+	cmd = NULL;
+	command = NULL;
+	env = ft_split(envp[4] + 5, ':');
+	handle_signal();
 	while (1)
 	{
 		line = ft_trim(readline("minishell> "));
@@ -121,21 +114,11 @@ int	main()
 			continue ;
 		if (check_parsing(line))
 			printf("Syntax Error\n");
-		create_cmd_list(&cmd, line);
-		exec(cmd);
-		// print_cmd(cmd);
+		create_cmd_list(&cmd, command, line, 0, 0, 0);
+		execute_cmd(cmd);
+		print_cmd(cmd);
+		free(line);
+		free_cmd(&cmd);
 	}
-	return (clear_history(), free_cmd(&cmd), free(line), 0);
+	return (clear_history(), 0);
 }
-
-
-// /Users/mnahli/.brew/bin
-// /Users/mnahli/goinfre/homebrew/bin/
-// /usr/local/bin/
-// /usr/bin
-// /bin
-// /usr/sbin
-// /sbin
-// /usr/local/munki
-// /Users/mnahli/Library/Python/3.9/bin
-

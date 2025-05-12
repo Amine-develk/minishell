@@ -3,50 +3,45 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mnahli <mnahli@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ael-krai <ael-krai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/11 10:03:05 by ael-krai          #+#    #+#             */
-/*   Updated: 2025/05/11 11:56:38 by mnahli           ###   ########.fr       */
+/*   Updated: 2025/05/12 13:30:59 by ael-krai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "../../includes/minishell.h"
 
-void	signal_handler(int signal, siginfo_t *d, void *context)
+void	handle_signal(void)
 {
-	(void)context;
-	(void)d;
+	struct sigaction	action;
 
+	action.sa_sigaction = signal_handler;
+	sigaction(SIGINT, &action, NULL);
+	sigaction(EOF, &action, NULL);
+	sigaction(SIGQUIT, &action, NULL);
+}
+
+void	signal_handler(int signal, siginfo_t *info, void *context)
+{
+	(void)info;
+	(void)context;
 	if (signal == SIGINT)
 	{
 		printf("\n");
-		rl_replace_line("", 0);
+		// rl_replace_line("", 0);
 		rl_on_new_line();
 		rl_redisplay();
 	}
-	else if (signal == EOF || signal == SIGQUIT)
-		exit(0) ;
+	else if (signal == EOF)
+		exit(0);
 }
 
 int	is_operator(char c)
 {
 	if (c == '|' || c == '>' || c == '<')
 		return (1);
-	return(0);
-}
-
-void	free_cmd(t_cmd **cmd)
-{
-	t_cmd	*tmp;
-
-	if (!cmd)
-		return ;
-	while (*cmd)
-	{
-		tmp = *cmd;
-		(*cmd) = (*cmd)->next;
-		free(tmp);
-	}
+	return (0);
 }
 
 char	*ft_trim(char *str)
@@ -77,7 +72,6 @@ char	*ft_trim(char *str)
 	return (free(str), s[len] = '\0', s);
 }
 
-
 int	check_parsing(char *str)
 {
 	int	i;
@@ -100,36 +94,8 @@ int	check_parsing(char *str)
 			s++;
 		i++;
 	}
-	if (d % 2 != 0 || s % 2 != 0 || str[j] == '|' ||
-		str[i - j - 1] == '|' || str[i - j - 1] == '>' || str[i - j - 1] == '<')
+	if (str[i - j - 1] == '|' || str[i - j - 1] == '>' || str[i - j - 1] == '<'
+		|| str[j] == '|' || d % 2 != 0 || s % 2 != 0)
 		return (1);
 	return (0);
-}
-
-t_cmd	*create_cmd(char *str)
-{
-	t_cmd	*cmd;
-
-	if (!(cmd = malloc(sizeof(t_cmd))))
-		return (NULL);
-	cmd->value = str;
-	cmd->next = NULL;
-	return (cmd);
-}
-
-void	push_cmd(t_cmd **lst, t_cmd *cmd)
-{
-	t_cmd	*tmp;
-
-	if (!cmd || !lst)
-		return ;
-	if (!*lst)
-	{
-		*lst = cmd;
-		return ;
-	}
-	tmp = (*lst);
-	while (tmp->next)
-		tmp = tmp->next;
-	tmp->next = cmd;
 }
