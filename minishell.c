@@ -6,7 +6,7 @@
 /*   By: mnahli <mnahli@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 10:34:20 by ael-krai          #+#    #+#             */
-/*   Updated: 2025/05/11 11:57:54 by mnahli           ###   ########.fr       */
+/*   Updated: 2025/05/12 12:00:47 by mnahli           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,8 +101,6 @@ void	print_cmd(t_cmd *cmd)
 
 }
 
-// void	
-
 int	main()
 {
 	struct sigaction	action;
@@ -113,7 +111,6 @@ int	main()
 	sigaction(SIGINT, &action, NULL);
 	sigaction(EOF, &action, NULL);
 	sigaction(SIGQUIT, &action, NULL);
-	cmd = NULL;
 	while (1)
 	{
 		line = ft_trim(readline("minishell> "));
@@ -125,9 +122,20 @@ int	main()
 		if (check_parsing(line))
 			printf("Syntax Error\n");
 		create_cmd_list(&cmd, line);
-		execute_cmd(&cmd);
+		exec(cmd);
 		// print_cmd(cmd);
 	}
 	return (clear_history(), free_cmd(&cmd), free(line), 0);
 }
-  
+
+
+// /Users/mnahli/.brew/bin
+// /Users/mnahli/goinfre/homebrew/bin/
+// /usr/local/bin/
+// /usr/bin
+// /bin
+// /usr/sbin
+// /sbin
+// /usr/local/munki
+// /Users/mnahli/Library/Python/3.9/bin
+
