@@ -6,7 +6,7 @@
 /*   By: ael-krai <ael-krai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/11 10:03:05 by ael-krai          #+#    #+#             */
-/*   Updated: 2025/05/12 13:30:59 by ael-krai         ###   ########.fr       */
+/*   Updated: 2025/05/15 11:24:16 by ael-krai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void	signal_handler(int signal, siginfo_t *info, void *context)
 	if (signal == SIGINT)
 	{
 		printf("\n");
-		// rl_replace_line("", 0);
+		rl_replace_line("", 0);
 		rl_on_new_line();
 		rl_redisplay();
 	}
@@ -44,58 +44,24 @@ int	is_operator(char c)
 	return (0);
 }
 
-char	*ft_trim(char *str)
+char	*ft_trim(char *s)
 {
-	char	*s;
-	int		start;
-	int		end;
-	int		len;
+	char	*str;
 	int		i;
+	int		j;
+	int		k;
 
-	if (!str)
+	i = 0;
+	j = ft_strlen(s) - 1;
+	while (s[i] == ' ' || s[i] == '\t' || s[i] == '\"' || s[i] == '\'')
+		i++;
+	while (s[j] == ' ' || s[j] == '\t' || s[j] == '\"' || s[j] == '\'')
+		j--;
+	if (!(str = malloc(j - i + 1)))
 		return (NULL);
-	start = 0;
-	while (str[start] && str[start] == ' ')
-		start++;
-	end = ft_strlen(str);
-	while (end > start && str[end - 1] == ' ')
-		end--;
-	len = end - start;
-	if (!(s = malloc(len + 1)))
-		return (free(str), NULL);
-	i = 0;
-	while (i < len)
-	{
-		s[i] = str[start + i];
-		i++;
-	}
-	return (free(str), s[len] = '\0', s);
-}
-
-int	check_parsing(char *str)
-{
-	int	i;
-	int	j;
-	int	d;
-	int	s;
-
-	i = 0;
-	d = 0;
-	s = 0;
-	if (str[0] == '\'' || str[0] == '\"')
-		j = 1;
-	else
-		j = 0;
-	while (str[i])
-	{
-		if (str[i] == '\"')
-			d++;
-		else if (str[i] == '\'')
-			s++;
-		i++;
-	}
-	if (str[i - j - 1] == '|' || str[i - j - 1] == '>' || str[i - j - 1] == '<'
-		|| str[j] == '|' || d % 2 != 0 || s % 2 != 0)
-		return (1);
-	return (0);
+	free(s);
+	k = 0;
+	while (i <= j)
+		str[k++] = s[i++];
+	return (str[k] = '\0', str);
 }

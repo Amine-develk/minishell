@@ -10,7 +10,9 @@ LIBFT = $(LIBFT_DIR)/libft.a
 SRCS = src/main/minishell.c \
 	src/parsing/cmd_utils.c \
 	src/parsing/utils.c \
-	src/execution/exec.c
+	src/execution/exec.c \
+	src/parsing/parsing.c \
+	src/parsing/init_cmd.c
 OBJS = ${SRCS:.c=.o}
 
 
