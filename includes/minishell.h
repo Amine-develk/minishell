@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ael-krai <ael-krai@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mnahli <mnahli@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 10:34:25 by ael-krai          #+#    #+#             */
-/*   Updated: 2025/05/15 11:22:52 by ael-krai         ###   ########.fr       */
+/*   Updated: 2025/05/21 11:29:59 by mnahli           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,9 +47,17 @@ typedef struct s_cmd
 {
     char    		*value;
     char            **args;
+    char            **cmd_path;
 	t_type          type;
     struct s_cmd	*next;
 }	t_cmd;
+
+typedef struct s_fd
+{
+	int					pipefd[2];
+	int					fdin;
+	int					fdout;
+}						t_fd;
 
 // parsing
 char	*remove_quotes(char *str);
@@ -76,6 +84,7 @@ void	ft_tokanize(t_cmd **cmd_list, t_cmd *cmd, int t, char *line, int i, int len
 void	create_cmd_list(t_cmd **cmd, t_cmd	*command, char *line, int quote, int i, int j);
 
 // execution
-int	execute_cmd(t_cmd *cmd);
+void	exec(t_cmd **cmd, t_env **env, char **envp, t_fd *fd);
+int	resolve_cmd_path(char **envp, t_cmd *cmd);
 
 #endif
