@@ -6,7 +6,7 @@
 /*   By: mnahli <mnahli@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 10:34:25 by ael-krai          #+#    #+#             */
-/*   Updated: 2025/06/10 12:52:23 by mnahli           ###   ########.fr       */
+/*   Updated: 2025/06/10 13:08:10 by mnahli           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ typedef struct s_cmd
 	char			*value;
 	char			**args;
 	char			**heredoc;
-	char			*cmd_path;
+	char			*cmd_path; // 2 stars or one star
 	int				pipe;
 	struct s_cmd	*next;
 	t_type			type;

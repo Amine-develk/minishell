@@ -3,14 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ael-krai <ael-krai@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mnahli <mnahli@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 10:34:20 by ael-krai          #+#    #+#             */
-/*   Updated: 2025/05/15 11:21:51 by ael-krai         ###   ########.fr       */
+/*   Updated: 2025/05/27 13:07:31 by mnahli           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
+
+int		g_exit_code;
 
 void	print_cmd(t_cmd *cmd)
 {
@@ -53,6 +55,7 @@ int	main(int ac, char **av, char **envp)
 	t_cmd	*command;
 	char	**path;
 	char	*line;
+	int fd;
 
 	(void)ac;
 	(void)av;
