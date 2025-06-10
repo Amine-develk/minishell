@@ -47,9 +47,19 @@ typedef struct s_cmd
 {
 	char			*value;
 	char			**args;
-	t_type			type;
+	char			**heredoc;
+	char			*cmd_path; // 2 stars or one star
+	int				pipe;
 	struct s_cmd	*next;
+	t_type			type;
 }					t_cmd;
+
+typedef struct s_fd
+{
+	int					pipefd[2];
+	int					fdin;
+	int					fdout;
+}						t_fd;
 
 // parsing
 char				*remove_quotes(char *str);
@@ -78,6 +88,16 @@ void				create_cmd_list(t_cmd **cmd, t_cmd *command, char *line,
 						int quote, int i, int j);
 
 // execution
-int					execute_cmd(t_cmd *cmd);
+void				exec(t_cmd **cmd, t_env **env, char **envp, t_fd *fd);
+int					resolve_cmd_path(char **envp, t_cmd *cmd);
+int					ft_heredoc(char *delimiter, t_env *env);
+void				signal_heredoc(int sig);
+int					var_in_line(char *delimiter, char *line);
+void				expand_variables(t_env *env, char *line, int fd);
+char				*get_env_value(t_env *env, const char *key);
+char				*get_var_name(char *var);
+
+char				*get_next_line(int fd);
+
 
 #endif
