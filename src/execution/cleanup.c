@@ -1,35 +1,37 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signals.c                                          :+:      :+:    :+:   */
+/*   cleanup.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mnahli <mnahli@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/29 12:55:44 by mnahli            #+#    #+#             */
-/*   Updated: 2025/06/10 13:47:30 by mnahli           ###   ########.fr       */
+/*   Created: 2025/06/12 09:39:09 by mnahli            #+#    #+#             */
+/*   Updated: 2025/06/12 09:43:02 by mnahli           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-void	signal_heredoc(int sig)
+void	close_fds(t_fd *fd)
 {
-	if (sig == SIGINT)
+	if (fd->fdin >= 0)
 	{
-		ft_putendl_fd("", STDOUT_FILENO);
-		exit(1);
+		close(fd->fdin);
+		fd->fdin = -1;
 	}
-	else if (sig == SIGQUIT)
-		return ;
-}
-
-void	setup_signals(void)
-{
-	struct termios	term;
-
-	tcgetattr(STDIN_FILENO, &term);
-	term.c_lflag &= ~ECHOCTL;
-	tcsetattr(STDIN_FILENO, TCSANOW, &term);
-	signal(SIGINT, handle_signal);
-	signal(SIGQUIT, handle_signal);
+	if (fd->fdout >= 0)
+	{
+		close(fd->fdout);
+		fd->fdout = -1;
+	}
+	if (fd->pipefd[0] >= 0)
+	{
+		close(fd->pipefd[0]);
+		fd->pipefd[0] = -1;
+	}
+	if (fd->pipefd[1] >= 0)
+	{
+		close(fd->pipefd[1]);
+		fd->pipefd[1] = -1;
+	}
 }

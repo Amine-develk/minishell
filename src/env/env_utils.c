@@ -1,35 +1,41 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signals.c                                          :+:      :+:    :+:   */
+/*   env_utils.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mnahli <mnahli@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/29 12:55:44 by mnahli            #+#    #+#             */
-/*   Updated: 2025/06/10 13:47:30 by mnahli           ###   ########.fr       */
+/*   Created: 2025/06/14 11:11:47 by mnahli            #+#    #+#             */
+/*   Updated: 2025/06/14 11:12:09 by mnahli           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-void	signal_heredoc(int sig)
+void	push_env_back(t_env **head, char *value)
 {
-	if (sig == SIGINT)
-	{
-		ft_putendl_fd("", STDOUT_FILENO);
-		exit(1);
-	}
-	else if (sig == SIGQUIT)
+	t_env	*tmp;
+	t_env	*node;
+
+	if (!head || !value)
 		return ;
-}
-
-void	setup_signals(void)
-{
-	struct termios	term;
-
-	tcgetattr(STDIN_FILENO, &term);
-	term.c_lflag &= ~ECHOCTL;
-	tcsetattr(STDIN_FILENO, TCSANOW, &term);
-	signal(SIGINT, handle_signal);
-	signal(SIGQUIT, handle_signal);
+	node = malloc(sizeof(t_env));
+	if (!node)
+		return ;
+	node->value = ft_strdup(value);
+	if (!node->value)
+	{
+		free(node);
+		return ;
+	}
+	node->next = NULL;
+	if (!*head)
+		*head = node;
+	else
+	{
+		tmp = *head;
+		while (tmp->next)
+			tmp = tmp->next;
+		tmp->next = node;
+	}
 }

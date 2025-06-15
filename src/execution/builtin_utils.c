@@ -6,15 +6,33 @@
 /*   By: mnahli <mnahli@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/10 10:42:55 by mnahli            #+#    #+#             */
-/*   Updated: 2025/06/10 11:09:41 by mnahli           ###   ########.fr       */
+/*   Updated: 2025/06/14 10:56:43 by mnahli           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
+char	*get_var_value(char *var)
+{
+	int	start;
+	int	i;
+
+	if (!var)
+		return (NULL);
+	i = 0;
+	while (var[i] && var[i] != '=')
+		i++;
+	if (!var[i] || !var[++i])
+		return (NULL);
+	start = i;
+	while (var[i])
+		i++;
+	return (ft_substr(var, start, i - start));
+}
+
 char	*get_var_name(char *var)
 {
-	int	i;
+	int		i;
 	char	*var_name;
 
 	if (!var)
@@ -22,7 +40,7 @@ char	*get_var_name(char *var)
 	i = 0;
 	while (var[i] && !(var[i] == '+' && var[i + 1] == '=') && var[i] != '=')
 		i++;
-	var_name = malloc(sizeof(char) * (i + 1));
+	var_name = (char *)malloc(sizeof(char) * (i + 1));
 	if (!var_name)
 		return (NULL);
 	i = 0;
@@ -31,7 +49,8 @@ char	*get_var_name(char *var)
 		var_name[i] = var[i];
 		i++;
 	}
-	return (var_name[i] = '\0', var_name);
+	var_name[i] = '\0';
+	return (var_name);
 }
 
 char	*get_env_value(t_env *env, const char *key)
@@ -55,15 +74,26 @@ char	*get_env_value(t_env *env, const char *key)
 	return (NULL);
 }
 
-// int	ft_env(t_env *env)
-// {
-// 	if (!env)
-// 		return (FAILURE);
-// 	while (env)
-// 	{
-// 		if (ft_strchr(env->value, '='))
-// 			ft_putendl_fd(env->value, 1);
-// 		env = env->next;
-// 	}
-// 	return (SUCCESS);
-// }
+int	is_valid_env_var_name(char *var)
+{
+	int		i;
+	char	*var_name;
+
+	if (!var || var[0] == '\0')
+		return (0);
+	var_name = get_var_name(var);
+	if (!var_name || var_name[0] == '\0')
+		return (free(var_name), 0);
+	if (var_name[0] == '-' && var_name[1] == '-')
+		return (free(var_name), 0);
+	if (!isalpha(var_name[0]) && var_name[0] != '_')
+		return (free(var_name), 0);
+	i = 1;
+	while (var_name[i])
+	{
+		if (!ft_isalnum(var_name[i]) && var_name[i] != '_')
+			return (free(var_name), 0);
+		i++;
+	}
+	return (free(var_name), 1);
+}

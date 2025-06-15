@@ -1,35 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signals.c                                          :+:      :+:    :+:   */
+/*   pwd.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mnahli <mnahli@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/29 12:55:44 by mnahli            #+#    #+#             */
-/*   Updated: 2025/06/10 13:47:30 by mnahli           ###   ########.fr       */
+/*   Created: 2025/06/12 12:56:25 by mnahli            #+#    #+#             */
+/*   Updated: 2025/06/12 12:58:53 by mnahli           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-void	signal_heredoc(int sig)
+int	ft_pwd(void)
 {
-	if (sig == SIGINT)
+	char	cwd[PATH_MAX];
+
+	if (getcwd(cwd, sizeof(cwd)))
 	{
-		ft_putendl_fd("", STDOUT_FILENO);
-		exit(1);
+		ft_putendl_fd(cwd, STDOUT_FILENO);
+		return (SUCCESS);
 	}
-	else if (sig == SIGQUIT)
-		return ;
-}
-
-void	setup_signals(void)
-{
-	struct termios	term;
-
-	tcgetattr(STDIN_FILENO, &term);
-	term.c_lflag &= ~ECHOCTL;
-	tcsetattr(STDIN_FILENO, TCSANOW, &term);
-	signal(SIGINT, handle_signal);
-	signal(SIGQUIT, handle_signal);
+	else
+		perror("getcwd");
+	return (FAILURE);
 }
