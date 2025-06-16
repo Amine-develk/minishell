@@ -6,14 +6,16 @@
 /*   By: mnahli <mnahli@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 10:34:25 by ael-krai          #+#    #+#             */
-/*   Updated: 2025/06/14 13:17:01 by mnahli           ###   ########.fr       */
+/*   Updated: 2025/06/16 11:16:10 by mnahli           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
+# include "get_next_line/get_next_line.h"
 # include "libft/libft.h"
+# include <dirent.h>
 # include <errno.h>
 # include <fcntl.h>
 # include <limits.h>
@@ -25,6 +27,7 @@
 # include <termios.h>
 # include <unistd.h>
 
+# define NOTFOUND 127
 # define FAILURE 1
 # define SUCCESS 0
 // #define APPEND_ERROR "minishell: syntax error near unexpected token `>>'"
@@ -54,7 +57,6 @@ typedef struct s_env
 
 typedef struct s_cmd
 {
-	char *value; // zayda
 	char			**args;
 	char			**heredoc;
 	char *cmd_path; // 2 stars or one star
@@ -63,7 +65,6 @@ typedef struct s_cmd
 	char			**outfile;
 	int				pipe;
 	int				append;
-	t_type			type;
 	struct s_cmd	*next;
 }					t_cmd;
 
@@ -75,34 +76,16 @@ typedef struct s_fd
 }					t_fd;
 
 // parsing
-char				*remove_quotes(char *str);
-int					check_quotes(char *str);
-int					check_operator(char *s);
-int					check_parsing(char *str);
 
-// utils
-int					is_operator(char c);
-char				*ft_trim(char *str);
-void				handle_signal(void);
-void				signal_handler(int signal, siginfo_t *info, void *context);
+// ------------------------------ EXECUTION ------------------------------ //
+// env
+int					env_init(t_env **env, char **envp);
+void				increment_shell_lvl(t_env **env);
 
-// cmd utils
-void				free_cmd(t_cmd **cmd);
-t_cmd				*create_cmd(char *str);
-void				push_cmd(t_cmd **lst, t_cmd *cmd);
-void				free_env(t_env **env);
-t_env				*create_env(char *str);
-void				push_env(t_env **lst, t_env *env);
-
-// init cmd
-void				ft_tokanize(t_cmd **cmd_list, t_cmd *cmd, int t, char *line,
-						int i, int len);
-void				create_cmd_list(t_cmd **cmd, t_cmd *command, char *line,
-						int quote, int i, int j);
-
-// execution
+// exec_main
 void				exec(t_cmd **cmd, t_env **env, char **envp, t_fd *fd);
 int					resolve_cmd_path(char **envp, t_cmd *cmd);
+void				push_env_back(t_env **head, char *value);
 int					ft_heredoc(char *delimiter, t_env *env);
 void				signal_heredoc(int sig);
 int					var_in_line(char *delimiter, char *line);
@@ -130,12 +113,21 @@ char				**env_to_str(t_env *env);
 char				*get_var_value(char *var);
 int					is_valid_env_var_name(char *var);
 void				append_env_value(t_env *env, char *var);
-void				push_env_back(t_env **head, char *value);
 
 int					ft_export(char **args, t_env **env);
 int					ft_unset(char **args, t_env **env);
 
+// Memory Cleanup
 void				free_command_list(t_cmd **cmd_list);
 void				free_array(char **arr);
+void				free_env(t_env **env);
+//**
+
+void				cmd_files_handler(t_cmd *cmd, t_fd *fd);
+void				exit_func(t_fd *fd, int status);
+int					check_is_dir(char *cmd);
+
+void				init_fds(t_fd *fd);
+void				ft_exit(char **args, t_cmd **cmds, t_env **env, t_fd *fd);
 
 #endif
