@@ -6,7 +6,7 @@
 /*   By: mnahli <mnahli@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/12 13:13:06 by mnahli            #+#    #+#             */
-/*   Updated: 2025/06/14 11:05:30 by mnahli           ###   ########.fr       */
+/*   Updated: 2025/06/16 09:25:15 by mnahli           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,8 @@ int	print_env_error(char *var, int errn)
 		ft_putstr_fd("minishell: export: -", STDERR_FILENO);
 		ft_putchar_fd(var[1], STDERR_FILENO);
 		ft_putendl_fd(": invalid option", STDERR_FILENO);
-		ft_putstr_fd("export: usage: export [-nf] [name[=value]] ", 2); // ?? value]] or value]
+		ft_putstr_fd("export: usage: export [-nf] [name[=value]] ", 2);
+			// ?? value]] or value]
 		ft_putendl_fd("or export -p", 2);
 	}
 	return (FAILURE);
@@ -127,7 +128,7 @@ int	ft_export(char **args, t_env **env)
 			print_env_error(args[i], 2);
 			had_error = 2;
 			i++;
-			continue;
+			continue ;
 		}
 		if (!is_valid_env_var_name(args[i]))
 			had_error = print_env_error(args[i], 1);

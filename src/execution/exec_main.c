@@ -1,16 +1,68 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   exec.c                                             :+:      :+:    :+:   */
+/*   exec_main.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mnahli <mnahli@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 11:40:25 by mnahli            #+#    #+#             */
-/*   Updated: 2025/06/14 13:43:19 by mnahli           ###   ########.fr       */
+/*   Updated: 2025/06/16 10:03:32 by mnahli           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
+
+void	wait_children(t_cmd *cmds)
+{
+	t_cmd	*current;
+	int			status;
+
+	current = cmds;
+	while (current)
+	{
+		if (current->pid > 0)
+		{
+			if (waitpid(current->pid, &status, 0) == -1)
+			{
+				perror("minishell: waitpid");
+				g_exit_code = EXIT_FAILURE;
+				return ;
+			}
+			if (WIFEXITED(status))
+				g_exit_code = WEXITSTATUS(status);
+			else if (WIFSIGNALED(status))
+			{
+				g_exit_code = WTERMSIG(status) + 128;
+				if (g_exit_code == 131)
+					ft_putendl_fd("Quit: 3", STDERR_FILENO);
+			}
+		}
+		current = current->next;
+	}
+}
+
+void	child_process(t_cmd *cmd, t_fd *fd, t_env **env, char **envp)
+{
+	cmd_files_handler(cmd, fd);
+	check_is_dir(cmd->args[0]);
+	if (is_builtin(cmd->args[0]))
+	{
+		exec_builtin(cmd->args, env);
+		exit_func(fd, g_exit_code);
+	}
+	if (!cmd->cmd_path || !ft_strcmp(cmd->args[0], ".."))
+	{
+		ft_putstr_fd("minishell: ", 2);
+		ft_putstr_fd(cmd->args[0], 2);
+		ft_putendl_fd(": command not found", 2);
+		exit_func(fd, NOTFOUND);
+	}
+	close(fd->pipefd[0]);
+	reset_terminal();
+	execve(cmd->cmd_path, cmd->args, envp);
+	perror("minishell: execve");
+	exit_func(fd, FAILURE);
+}
 
 int	ft_exec_cmd(t_fd *fd, t_cmd *cmds, t_env **env, char **envp)
 {
@@ -88,7 +140,10 @@ void	exec(t_cmd **cmd, t_env **env, char **envp, t_fd *fd)
 			if (ft_exec_cmd(fd, current, env, envp) == FAILURE)
 				break ;
 		// Go to the next cmd
+		current = current->next;
 	}
 	// wait for all children
+	wait_children(*cmd);
 	// reset signal handling
+	setup_signals();
 }

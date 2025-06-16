@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_heredoc.c                                       :+:      :+:    :+:   */
+/*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mnahli <mnahli@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 12:19:45 by mnahli            #+#    #+#             */
-/*   Updated: 2025/06/10 11:46:47 by mnahli           ###   ########.fr       */
+/*   Updated: 2025/06/16 09:58:51 by mnahli           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-static void	heredoc_handeler(char *delimiter, t_env *env, int fd)
+void	heredoc_handler(char *delimiter, t_env *env, int fd)
 {
 	char	*line;
 	char	*line_delimiter;
@@ -58,7 +58,7 @@ int	ft_heredoc(char *delimiter, t_env *env)
 	if (pid == -1)
 		return (close(fd), perror("fork"), exit(EXIT_FAILURE), FAILURE);
 	if (pid == 0)
-		heredoc_handeler(delimiter, env, fd);
+		heredoc_handler(delimiter, env, fd);
 	else
 	{
 		waitpid(pid, &status, 0);

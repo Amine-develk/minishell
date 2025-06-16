@@ -6,7 +6,7 @@
 /*   By: mnahli <mnahli@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/14 11:51:49 by mnahli            #+#    #+#             */
-/*   Updated: 2025/06/14 13:21:01 by mnahli           ###   ########.fr       */
+/*   Updated: 2025/06/16 09:21:55 by mnahli           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,7 +119,8 @@ void	ft_exit(char **args, t_cmd **cmds, t_env **env, t_fd *fd)
 			exit(255);
 		}
 		if (args_count(args) > 2)
-			return (g_exit_code = 1, ft_putendl_fd("minishell: exit: too many arguments", 2));
+			return (g_exit_code = 1,
+				ft_putendl_fd("minishell: exit: too many arguments", 2));
 		exit_code = ft_atoi(args[1]);
 	}
 	free_command_list(cmds);

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   free_mem.c                                         :+:      :+:    :+:   */
+/*   mem_cleanup.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mnahli <mnahli@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/14 12:39:46 by mnahli            #+#    #+#             */
-/*   Updated: 2025/06/14 13:29:53 by mnahli           ###   ########.fr       */
+/*   Updated: 2025/06/16 10:42:18 by mnahli           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,14 +16,16 @@ void	free_env(t_env **env)
 {
 	t_env	*tmp;
 
-	if (!env)
+	if (!env || !*env)
 		return ;
 	while (*env)
 	{
 		tmp = *env;
-		(*env) = (*env)->next;
+		*env = (*env)->next;
+		free(tmp->value);
 		free(tmp);
 	}
+	*env = NULL;
 }
 
 void	free_array(char **arr)

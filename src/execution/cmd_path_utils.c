@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   cmd_path.c                                         :+:      :+:    :+:   */
+/*   cmd_path_utils.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mnahli <mnahli@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/20 12:44:03 by mnahli            #+#    #+#             */
-/*   Updated: 2025/06/14 13:26:03 by mnahli           ###   ########.fr       */
+/*   Updated: 2025/06/16 09:41:05 by mnahli           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ char	*get_cmd_path(char **path, char *cmd)
 	char	*temp;
 
 	i = 0;
-	if (!path || !*path || !cmd || !*cmd)
+	if (!path || !cmd || !*cmd)
 		return (NULL);
 	while (path[i])
 	{
@@ -62,24 +62,24 @@ char	*get_cmd_path(char **path, char *cmd)
 
 int	resolve_cmd_path(char **envp, t_cmd *cmd)
 {
-	char	**path;
+	char	**paths;
 
-	if (!envp || !*envp || !cmd)
+	if (!envp || !cmd)
 		return (0);
-	path = get_path(envp);
+	paths = get_paths(envp);
 	while (cmd)
 	{
 		if (cmd->args && cmd->args[0])
 		{
-			if (ft_strchr(cmd->args[0], '/') || !(ft_strncmp(cmd->args[0], "./",
-						2)))
+			if (ft_strchr(cmd->args[0], '/') || !ft_strncmp(cmd->args[0],
+					"./", 2))
 				cmd->cmd_path = ft_strdup(cmd->args[0]);
-			else if (path)
-				cmd->cmd_path = get_cmd_path(path, cmd->args[0]);
+			else if (paths)
+				cmd->cmd_path = get_cmd_path(paths, cmd->args[0]);
 		}
 		cmd = cmd->next;
 	}
-	free_array(path);
+	free_array(paths);
 	return (1);
 }
 

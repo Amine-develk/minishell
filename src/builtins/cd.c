@@ -6,7 +6,7 @@
 /*   By: mnahli <mnahli@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/12 10:59:07 by mnahli            #+#    #+#             */
-/*   Updated: 2025/06/12 12:41:43 by mnahli           ###   ########.fr       */
+/*   Updated: 2025/06/16 09:16:18 by mnahli           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ int	update_oldpwd(t_env *env)
 		var_name = get_var_name(env->value);
 		if (!var_name)
 			return (FAILURE);
-		if (!ft_strcmp("OLDPWD", var_name))
+		if (ft_strcmp("OLDPWD", var_name) == 0)
 		{
 			oldpwd = ft_strjoin("OLDPWD=", cwd);
 			free(var_name);
@@ -47,7 +47,7 @@ int	update_pwd(t_env *env)
 	char	cwd[PATH_MAX];
 	char	*pwd;
 
-	if (!get_cwd(cwd, sizeof(cwd)))
+	if (!getcwd(cwd, sizeof(cwd)))
 		return (FAILURE);
 	while (env)
 	{
@@ -72,7 +72,7 @@ int	update_pwd(t_env *env)
 
 int	cd_home(t_env *env)
 {
-	char *home;
+	char	*home;
 
 	home = get_env_value(env, "HOME");
 	if (!home || *home == '\0')
@@ -80,7 +80,8 @@ int	cd_home(t_env *env)
 	if (update_oldpwd(env) == FAILURE)
 		return (FAILURE);
 	if (chdir(home) == -1)
-		return (ft_putendl_fd("minishell: cd: cannot change directory", 2), FAILURE);
+		return (ft_putendl_fd("minishell: cd: cannot change directory", 2),
+			FAILURE);
 	return (update_pwd(env));
 }
 
@@ -94,7 +95,8 @@ int	cd_oldpwd(t_env *env)
 	if (update_oldpwd(env) == FAILURE)
 		return (FAILURE);
 	if (chdir(oldpwd) == -1)
-		return (ft_putendl_fd("minishell: cd: cannot chage directory", 2), FAILURE);
+		return (ft_putendl_fd("minishell: cd: cannot change directory", 2),
+			FAILURE);
 	if (update_pwd(env) == FAILURE)
 		return (FAILURE);
 	ft_putendl_fd(get_env_value(env, "PWD"), 1);
@@ -105,12 +107,12 @@ int	ft_cd(char **args, t_env **env)
 {
 	if (args[1] && !args[1][0])
 		return (SUCCESS);
-	if (!args[1] || !ft_strcmp(args[1], "~"))
+	if (!args[1] || ft_strcmp(args[1], "~") == 0)
 		return (cd_home(*env));
-	if (!ft_strcmp(args[1], "-"))
+	if (ft_strcmp(args[1], "-") == 0)
 		return (cd_oldpwd(*env));
 	update_oldpwd(*env);
-	if (!chdir(args[1]))
+	if (chdir(args[1]) == 0)
 		return (update_pwd(*env));
 	ft_putstr_fd("minishell: cd: ", 2);
 	ft_putstr_fd(args[1], 2);
