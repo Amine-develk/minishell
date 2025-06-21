@@ -5,63 +5,63 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: ael-krai <ael-krai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/11 10:03:05 by ael-krai          #+#    #+#             */
-/*   Updated: 2025/05/15 11:24:16 by ael-krai         ###   ########.fr       */
+/*   Created: 2025/05/22 10:37:48 by ael-krai          #+#    #+#             */
+/*   Updated: 2025/06/21 11:43:53 by ael-krai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-void	handle_signal(void)
+t_cmd	*init_cmd(void)
 {
-	struct sigaction	action;
+	t_cmd	*cmd;
 
-	action.sa_sigaction = signal_handler;
-	sigaction(SIGINT, &action, NULL);
-	sigaction(EOF, &action, NULL);
-	sigaction(SIGQUIT, &action, NULL);
+	cmd = malloc(sizeof(t_cmd));
+	if (!cmd)
+		return (NULL);
+	cmd->args = NULL;
+	cmd->infile = NULL;
+	cmd->outfile = NULL;
+	cmd->append = 0;
+	cmd->heredoc = NULL;
+	cmd->pipe = 0;
+	cmd->next = NULL;
+	cmd->pid = -1;
+	cmd->cmd_path = NULL;
+	return (cmd);
 }
 
-void	signal_handler(int signal, siginfo_t *info, void *context)
+char	*add_result(char *result, char *tmp)
 {
-	(void)info;
-	(void)context;
-	if (signal == SIGINT)
-	{
-		printf("\n");
-		rl_replace_line("", 0);
-		rl_on_new_line();
-		rl_redisplay();
-	}
-	else if (signal == EOF)
-		exit(0);
+	char	*new;
+
+	if (!tmp)
+		tmp = ft_strdup("");
+	if (!result)
+		return (tmp);
+	new = ft_strjoin(result, tmp);
+	free(result);
+	free(tmp);
+	return (new);
 }
 
-int	is_operator(char c)
+t_cmd	*tokenize_line(char *line, t_env **env)
 {
-	if (c == '|' || c == '>' || c == '<')
-		return (1);
-	return (0);
-}
-
-char	*ft_trim(char *s)
-{
-	char	*str;
+	t_token	*token;
+	t_cmd	*cmd;
 	int		i;
-	int		j;
-	int		k;
 
 	i = 0;
-	j = ft_strlen(s) - 1;
-	while (s[i] == ' ' || s[i] == '\t' || s[i] == '\"' || s[i] == '\'')
-		i++;
-	while (s[j] == ' ' || s[j] == '\t' || s[j] == '\"' || s[j] == '\'')
-		j--;
-	if (!(str = malloc(j - i + 1)))
-		return (NULL);
-	free(s);
-	k = 0;
-	while (i <= j)
-		str[k++] = s[i++];
-	return (str[k] = '\0', str);
+	cmd = NULL;
+	token = NULL;
+	while (line[i])
+	{
+		if (line[i] == ' ' || line[i] == '\t' || line[i] == '\r')
+			i++;
+		else
+			process_and_add_token(&token, env, line, &i);
+	}
+	parse_tokens(token, &cmd);
+	free_token(&token);
+	return (cmd);
 }

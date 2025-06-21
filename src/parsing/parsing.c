@@ -5,69 +5,79 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: ael-krai <ael-krai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/13 08:30:00 by ael-krai          #+#    #+#             */
-/*   Updated: 2025/05/15 11:05:59 by ael-krai         ###   ########.fr       */
+/*   Created: 2025/05/19 09:20:43 by ael-krai          #+#    #+#             */
+/*   Updated: 2025/06/21 11:53:12 by ael-krai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-char	*remove_quotes(char *str)
+static void	ft_increment(int *open, int *i, int n)
 {
-	char	*s;
-	int		i;
-	int		j;
-	int		k;
-
-	i = 1;
-	j = ft_strlen(str) - 2;
-	if (!(s = malloc(j - i + 1)))
-		return (NULL);
-	k = 0;
-	while (i <= j)
-	{
-		s[k] = str[i];
-		k++;
-		i++;
-	}
-	return (s[k] = '\0', s);
+	(*i)++;
+	(*open) = n;
 }
 
-int	check_quotes(char *str)
+int	open_quotes(char *line)
 {
+	int	open;
 	int	i;
-	int	d;
-	int	s;
 
+	open = 0;
 	i = 0;
-	d = 0;
-	s = 0;
-	while (str[i])
+	while (line[i])
 	{
-		if (str[i] == '\"')
-			d++;
-		else if (str[i] == '\'')
-			s++;
-		i++;
+		if (i > 0 && line[i - 1] == '\\')
+			i++;
+		else if (open == 0 && line[i] == '\"')
+			ft_increment(&open, &i, 1);
+		else if (open == 0 && line[i] == '\'')
+			ft_increment(&open, &i, 2);
+		else if ((open == 1 && line[i] == '\"')
+			|| (open == 2 && line[i] == '\''))
+			ft_increment(&open, &i, 0);
+		else
+			i++;
 	}
-	if (d % 2 != 0 || s % 2 != 0)
-		return (1);
-	return (0);
+	return (open);
 }
 
-int	check_operator(char *s)
+t_type	get_type(char *line, int *i)
 {
-	int	i;
-
-	i = ft_strlen(s) - 1;
-	if (s[0] == '|' || is_operator(s[i]))
-		return (1);
-	return (0);
+	if (line[*i] == '>' && line[*i + 1] == '>')
+		return ((*i) += 2, APPEND);
+	else if (line[*i] == '<' && line[*i + 1] == '<')
+		return ((*i) += 2, HEREDOC);
+	else if (line[*i] == '&' && line[*i + 1] == '&')
+		return ((*i) += 2, AND);
+	else if (line[*i] == '|' && line[*i + 1] == '|')
+		return ((*i) += 2, OR);
+	else if (line[*i] == '<')
+		return ((*i)++, IN);
+	else if (line[*i] == '>')
+		return ((*i)++, OUT);
+	else if (line[*i] == '|')
+		return ((*i)++, PIPE);
+	else
+		return (WORD);
 }
 
-int	check_parsing(char *str)
+t_cmd	*ft_parse(char *line, t_env **env)
 {
-	if (check_quotes(str) || check_operator(str))
-		return (1);
-	return (0);
+	t_cmd	*cmd;
+
+	cmd = NULL;
+	if (!line || !*line)
+		return (NULL);
+	if (open_quotes(line))
+		return ((*env)->exit_code = 258,
+			ft_putendl_fd(UNEXPECTED, 2), NULL);
+	if (ambiguous_redirect(line, *env))
+		return ((*env)->exit_code = 258,
+			ft_putendl_fd("ambiguous redirect", 2), NULL);
+	if (redirect_errors(line, 0, NULL) || pipe_errors(line))
+		return ((*env)->exit_code = 258,
+			ft_putendl_fd(UNEXPECTED, 2), NULL);
+	cmd = tokenize_line(line, env);
+	return (cmd);
 }

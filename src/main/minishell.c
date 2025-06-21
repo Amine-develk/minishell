@@ -5,82 +5,61 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: ael-krai <ael-krai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/14 10:34:20 by ael-krai          #+#    #+#             */
-/*   Updated: 2025/05/15 11:21:51 by ael-krai         ###   ########.fr       */
+/*   Created: 2025/05/19 09:25:45 by ael-krai          #+#    #+#             */
+/*   Updated: 2025/06/21 11:51:20 by ael-krai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-void	print_cmd(t_cmd *cmd)
+int	g_exit_code;
+
+void	process_line(t_cmd **cmd, t_env **env, char *line)
 {
-	while (cmd != NULL)
+	char	**envp;
+	t_fd	fd;
+
+	init_fds(&fd);
+	envp = env_to_str(*env);
+	if (*line)
+		add_history(line);
+	*cmd = ft_parse(line, env);
+	if (!*cmd)
 	{
-		if (cmd->type == 0)
-		{
-			int	i = 0;
-			printf("%u:\t", cmd->type);
-			while (cmd->args[i])
-			{
-				printf("%s\t", cmd->args[i]);
-				i++;
-			}
-			printf("\n");
-		}
-		else
-			printf("%u:\t%s\n", cmd->type, cmd->value);
-		cmd = cmd->next;
+		free_cmd(cmd);
+		free_array(envp);
+		free(line);
+		return ;
 	}
-
-}
-
-void	create_env_list(t_env **env, char **envp)
-{
-	int	i;
-
-	i = 0;
-	while (envp[i])
-	{
-		push_env(env, create_env(envp[i]));
-		i++;
-	}
+	// ft_exec(cmd, env, envp, &fd);
+	free(cmd);
+	free(envp);
+	free(line);
 }
 
 int	main(int ac, char **av, char **envp)
 {
-	t_env	*env;
 	t_cmd	*cmd;
-	t_cmd	*command;
-	char	**path;
+	t_env	*env;
 	char	*line;
 
 	(void)ac;
 	(void)av;
-	env = NULL;
 	cmd = NULL;
-	command = NULL;
-	path = ft_split(envp[4] + 5, ':');
-	create_env_list(&env, envp);
-	handle_signal();
+	handle_signals();
+	init_env(&env, envp);
+	increment_shell(&env);
 	while (1)
 	{
-		if (!(line = ft_trim(readline("minishell> "))))
+		line = readline("minishell> ");
+		if (!line)
+		{
+			printf("exit\n");
 			break ;
-		add_history(line);
-		if (line == NULL)
-			continue ;
-		if (check_parsing(line))
-			printf("Syntax Error\n");
-		create_cmd_list(&cmd, command, line, 0, 0, 0);
-		print_cmd(cmd);
-		free(line);
-		free_cmd(&cmd);
+		}
+		process_line(&cmd, &env, line);
 	}
-	return (clear_history(), free_env(&env), 0);
+	free_env(&env);
+	reset_terminal();
+	return (env->exit_code);
 }
-
-// hayd single and double quotes
-// trim tabs
-// syntax error cases bash
-// check successive operators
-// environment \/

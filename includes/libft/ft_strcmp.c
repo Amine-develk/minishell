@@ -1,24 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signals.c                                          :+:      :+:    :+:   */
+/*   ft_strcmp.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mnahli <mnahli@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ael-krai <ael-krai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/29 12:55:44 by mnahli            #+#    #+#             */
-/*   Updated: 2025/05/29 12:58:25 by mnahli           ###   ########.fr       */
+/*   Created: 2025/05/26 11:39:59 by ael-krai          #+#    #+#             */
+/*   Updated: 2025/05/26 11:40:19 by ael-krai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/minishell.h"
+#include "libft.h"
 
-void	signal_heredoc(int sig)
+int	ft_strcmp(const char *s1, const char *s2)
 {
-	if (sig == SIGINT)
+	size_t	i;
+
+	i = 0;
+	while (s1[i] == s2[i])
 	{
-		ft_putendl_fd("", STDOUT_FILENO);
-		exit(1);
+		if (s1[i] == '\0' && s2[i] == '\0')
+			return (0);
+		i++;
 	}
-	else if (sig == SIGQUIT)
-		return ;
+	return ((unsigned char)s1[i] - (unsigned char)s2[i]);
 }
